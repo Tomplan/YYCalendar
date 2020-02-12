@@ -30,7 +30,7 @@ import UIKit
     var dayStackView: UIStackView!
 
     // MARK: - Calendar Style
-    var dayButtonStyle: DayButtonStyle = .roundishSquare
+   var dayButtonStyle: DayButtonStyle = .roundishSquare
     var hideDuration: Double = 0.3
     var dimmedBackgroundColor: UIColor = UIColor.black
     var dimmedBackgroundAlpha: CGFloat = 0.5
@@ -45,8 +45,14 @@ import UIKit
     var lineSeparatorColor: UIColor = Useful.getUIColor(233, 233, 233)
     var selectedDayColor: UIColor = Useful.getUIColor(55, 137, 220)
     var headerLabelFont: UIFont = UIFont.systemFont(ofSize: 24)
+    var headerLabelBackgroundColor: UIColor = UIColor.darkGray
+    var headerLabelTextColor: UIColor = UIColor.black
     var weekLabelFont: UIFont = UIFont.systemFont(ofSize: 16)
+    var weekLabelBackgroundColor: UIColor = UIColor.darkGray
+    var weekLabelTextColor: UIColor = UIColor.black
     var dayLabelFont: UIFont = UIFont.systemFont(ofSize: 19)
+    var dayLabelBackgroundColor: UIColor = UIColor.darkGray
+    var dayLabelTextColor: UIColor = UIColor.black
 
     var dayArray: [String] = []
     var dayButtonArray: [DayButton] = []
@@ -238,8 +244,12 @@ import UIKit
         self.yearLabel = UILabel.init()
         self.monthLabel.text = String(format: "%02d월", self.inputMonth)
         self.monthLabel.font = self.headerLabelFont
+        self.monthLabel.backgroundColor = self.headerLabelBackgroundColor
+        self.monthLabel.textColor = self.headerLabelBackgroundColor
         self.yearLabel.text = String(format: "%d년", self.inputYear)
         self.yearLabel.font = self.headerLabelFont
+        self.yearLabel.backgroundColor = self.headerLabelBackgroundColor
+        self.yearLabel.textColor = self.headerLabelBackgroundColor
 
         // Setup Month, Year Select Button
         self.yearLeftButton = UIButton.init(type: .custom)
@@ -392,14 +402,14 @@ import UIKit
         self.closeButton.widthAnchor.constraint(equalTo: self.closeButton.heightAnchor).isActive = true
 
         // Month, Year Select Button
-        self.yearLeftButton.heightAnchor.constraint(equalToConstant: 35)
-        self.yearLeftButton.widthAnchor.constraint(equalToConstant: 30)
-        self.yearRightButton.heightAnchor.constraint(equalToConstant: 35)
-        self.yearRightButton.widthAnchor.constraint(equalToConstant: 30)
-        self.monthLeftButton.heightAnchor.constraint(equalToConstant: 35)
-        self.monthLeftButton.widthAnchor.constraint(equalToConstant: 30)
-        self.monthRightButton.heightAnchor.constraint(equalToConstant: 35)
-        self.monthRightButton.widthAnchor.constraint(equalToConstant: 30)
+//        self.yearLeftButton.heightAnchor.constraint(equalToConstant: 35)
+//        self.yearLeftButton.widthAnchor.constraint(equalToConstant: 30)
+//        self.yearRightButton.heightAnchor.constraint(equalToConstant: 35)
+//        self.yearRightButton.widthAnchor.constraint(equalToConstant: 30)
+//        self.monthLeftButton.heightAnchor.constraint(equalToConstant: 35)
+//        self.monthLeftButton.widthAnchor.constraint(equalToConstant: 30)
+//        self.monthRightButton.heightAnchor.constraint(equalToConstant: 35)
+//        self.monthRightButton.widthAnchor.constraint(equalToConstant: 30)
 
         // SelectMonthYear StackView
         self.selectMonthYearStackView.topAnchor.constraint(equalTo: self.headerView.topAnchor, constant: 20).isActive = true

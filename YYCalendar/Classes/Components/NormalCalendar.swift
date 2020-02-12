@@ -10,6 +10,7 @@ import UIKit
 @available(iOS 10.0, *)
 @objcMembers public class NormalCalendar: UIViewController {
 
+    
     // MARK: - UI Property
     var previousWindow: UIWindow!
     var contentViewWindow: UIWindow!
@@ -44,13 +45,23 @@ import UIKit
     var disabledDefaultDayColor: UIColor = Useful.getUIColor(193, 193, 193)
     var lineSeparatorColor: UIColor = Useful.getUIColor(233, 233, 233)
     var selectedDayColor: UIColor = Useful.getUIColor(55, 137, 220)
-    var headerLabelFont: UIFont = UIFont.systemFont(ofSize: 24)
+//    var headerLabelFont: UIFont = UIFont.systemFont(ofSize: 24)
+    var headerLabelFont: UIFont = UIFont(name: "Helvetica", size: 20.0)!
+    var headerLabelBackgroundColor: UIColor = UIColor.darkGray
+    var headerLabelTextColor: UIColor = UIColor.black
     var weekLabelFont: UIFont = UIFont.systemFont(ofSize: 16)
+    var weekLabelBackgroundColor: UIColor = UIColor.darkGray
+    var weekLabelTextColor: UIColor = UIColor.black
     var dayLabelFont: UIFont = UIFont.systemFont(ofSize: 19)
+    var dayLabelBackgroundColor: UIColor = UIColor.darkGray
+    var dayLabelTextColor: UIColor = UIColor.black
 
     var dayArray: [String] = []
     var dayButtonArray: [DayButton] = []
     var dayStackViewArray: [UIStackView] = []
+
+    var todayLabel: UILabel = UILabel()
+    var todayButton: UIButton = UIButton()
 
     var tapOutsideTouchGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer()
 
@@ -72,7 +83,7 @@ import UIKit
     public var inquiryDate: Date = Date() // input date from client
     public var dateFormat: String = "" // input date format from client
     public var langType: LangType = .ENG // default value is English
-    let calendar: Calendar = Calendar(identifier: .gregorian)
+    var calendar: Calendar = Calendar(identifier: .iso8601)
     var weekArray: [String] = ENG_WEEK
 
     // Detached from inquiryDate
@@ -83,7 +94,7 @@ import UIKit
 
     // In order to draw calendar
     var firstWeekDay: Int = 0
-    var lastWeekDay: Int = 0
+    var lastWeekDay: Int =  0
     var isTodayMonth: Bool = false
     var isdisabledMonth: Bool = false
     var todayYear: Int = Calendar.current.component(.year, from: Date())
@@ -136,13 +147,15 @@ import UIKit
 
     // Set date componet by detaching from inquiryDate
     func setupDate() {
+        self.calendar.locale = Locale(identifier: "en_BE")
+//        print("*********************************")
+//        print("self.inquiryDate: ", self.inquiryDate)
         self.inputYear = self.calendar.component(.year, from: self.inquiryDate)
-        self.inputMonth = self.calendar.component(.month, from: self.inquiryDate)
-        self.inputDay = self.calendar.component(.day, from: self.inquiryDate)
+        self.inputMonth = self.calendar.ordinality(of: .month, in: .year, for: self.inquiryDate)!
+        self.inputDay = self.calendar.ordinality(of: .weekday, in: .weekOfYear, for: self.inquiryDate)!
         self.lastDay = self.calendar.component(.day, from: self.inquiryDate.endOfMonth())
-        self.firstWeekDay = self.calendar.component(.weekday, from: self.inquiryDate.startOfMonth())
-        self.lastWeekDay = self.calendar.component(.weekday, from: self.inquiryDate.endOfMonth())
-
+        self.firstWeekDay = self.calendar.ordinality(of: .weekday, in: .weekOfYear, for: self.inquiryDate.startOfMonth())!
+        self.lastWeekDay = self.calendar.ordinality(of: .weekday, in: .weekOfYear, for: self.inquiryDate.endOfMonth())!
         // Do inputMonth include today?
         if self.todayMonth == self.inputMonth && self.todayYear == self.inputYear {
             self.isTodayMonth = true
@@ -222,15 +235,35 @@ import UIKit
         self.closeButton.setBackgroundImage(Image.forButton.highlightedClose, for: .highlighted)
         self.closeButton.addTarget(self, action: #selector(dismissView), for: .touchUpInside)
         self.headerView.addSubview(self.closeButton)
-
+        
+        // Setup TodayButton TOM
+        self.todayButton = UIButton.init(type: .roundedRect)
+//        self.todayLabel.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
+        self.todayButton.setTitle("   Today   ", for: .normal)
+        self.todayButton.tintColor = UIColor.lightGray
+        self.todayButton.backgroundColor = UIColor.darkGray
+        self.todayButton.layer.cornerRadius = 10 // 0.25 * todayButton.frame.width
+//            self.todayLabel.font = UIFont(name: "Helvetica", size: 16)
+//        self.todayLabel.textColor = UIColor.lightGray
+//        self.todayLabel.textAlignment = .center
+//        self.todayLabel.numberOfLines = 1
+//        self.todayLabel.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
+//            self.todayButton.addTarget(self, action: #selector(todayAction), for: .touchUpInside)
+        self.todayButton.restorationIdentifier = "todaysMonth"
+        self.todayButton.addTarget(self, action: #selector(changeMonthOrYear(_:)), for: .touchUpInside)
+        
         // Setup Month, Year Label
         self.monthLabel = UILabel.init()
         self.yearLabel = UILabel.init()
         self.monthLabel.text = String(format: "%02d월", self.inputMonth)
         self.monthLabel.font = self.headerLabelFont
+        self.monthLabel.backgroundColor = self.headerLabelBackgroundColor
+        self.monthLabel.textColor = self.headerLabelTextColor
         self.yearLabel.text = String(format: "%d년", self.inputYear)
         self.yearLabel.font = self.headerLabelFont
-
+        self.yearLabel.backgroundColor = self.headerLabelBackgroundColor
+        self.yearLabel.textColor = self.headerLabelTextColor
+        
         // Setup Month, Year Select Button
         self.yearLeftButton = UIButton.init(type: .custom)
         self.yearRightButton = UIButton.init(type: .custom)
@@ -257,12 +290,12 @@ import UIKit
         self.selectMonthYearStackView = UIStackView.init()
         self.selectMonthYearStackView.axis = .horizontal
         self.selectMonthYearStackView.spacing = 2
-        self.selectMonthYearStackView.addArrangedSubview(self.yearLeftButton)
-        self.selectMonthYearStackView.addArrangedSubview(self.yearLabel)
-        self.selectMonthYearStackView.addArrangedSubview(self.yearRightButton)
         self.selectMonthYearStackView.addArrangedSubview(self.monthLeftButton)
         self.selectMonthYearStackView.addArrangedSubview(self.monthLabel)
         self.selectMonthYearStackView.addArrangedSubview(self.monthRightButton)
+        self.selectMonthYearStackView.addArrangedSubview(self.yearLeftButton)
+        self.selectMonthYearStackView.addArrangedSubview(self.yearLabel)
+        self.selectMonthYearStackView.addArrangedSubview(self.yearRightButton)
         self.headerView.addSubview(self.selectMonthYearStackView)
 
         // Setup Week StackView
@@ -278,9 +311,9 @@ import UIKit
             tempLabel.textColor = self.defaultDayColor
             tempLabel.text = self.weekArray[index]
 
-            if index == 0 {
+            if index == 6 {
                 tempLabel.textColor = self.sundayColor
-            } else if index == 6 {
+            } else if index == 5 {
                 tempLabel.textColor = self.saturdayColor
             }
 
@@ -308,9 +341,9 @@ import UIKit
                 tempButton.titleLabel?.font = self.dayLabelFont
                 tempButton.selectedDayColor = self.selectedDayColor
 
-                if column == 1 { // Sunday
+                if column == 7 { // Sunday
                     tempButton.setTitleColor(self.sundayColor, for: .normal)
-                } else if column == 7 { // Saturday
+                } else if column == 6 { // Saturday
                     tempButton.setTitleColor(self.saturdayColor, for: .normal)
                 } else { // Weekday
                     tempButton.setTitleColor(self.defaultDayColor, for: .normal)
@@ -327,6 +360,8 @@ import UIKit
         }
 
         self.bodyView.addSubview(self.dayStackView)
+        self.bodyView.addSubview(self.todayButton)
+
     }
 
     func setupAutoLayout() {
@@ -340,6 +375,7 @@ import UIKit
         self.yearLabel.translatesAutoresizingMaskIntoConstraints = false
         self.weekStackView.translatesAutoresizingMaskIntoConstraints = false
         self.closeButton.translatesAutoresizingMaskIntoConstraints = false
+        self.todayButton.translatesAutoresizingMaskIntoConstraints = false
         self.monthLeftButton.translatesAutoresizingMaskIntoConstraints = false
         self.monthRightButton.translatesAutoresizingMaskIntoConstraints = false
         self.yearLeftButton.translatesAutoresizingMaskIntoConstraints = false
@@ -381,15 +417,16 @@ import UIKit
         self.closeButton.heightAnchor.constraint(equalToConstant: 35).isActive = true
         self.closeButton.widthAnchor.constraint(equalTo: self.closeButton.heightAnchor).isActive = true
 
+        
         // Month, Year Select Button
-        self.yearLeftButton.heightAnchor.constraint(equalToConstant: 35)
-        self.yearLeftButton.widthAnchor.constraint(equalToConstant: 30)
-        self.yearRightButton.heightAnchor.constraint(equalToConstant: 35)
-        self.yearRightButton.widthAnchor.constraint(equalToConstant: 30)
-        self.monthLeftButton.heightAnchor.constraint(equalToConstant: 35)
-        self.monthLeftButton.widthAnchor.constraint(equalToConstant: 30)
-        self.monthRightButton.heightAnchor.constraint(equalToConstant: 35)
-        self.monthRightButton.widthAnchor.constraint(equalToConstant: 30)
+//        self.yearLeftButton.heightAnchor.constraint(equalToConstant: 35)
+//        self.yearLeftButton.widthAnchor.constraint(equalToConstant: 30)
+//        self.yearRightButton.heightAnchor.constraint(equalToConstant: 35)
+//        self.yearRightButton.widthAnchor.constraint(equalToConstant: 30)
+//        self.monthLeftButton.heightAnchor.constraint(equalToConstant: 35)
+//        self.monthLeftButton.widthAnchor.constraint(equalToConstant: 30)
+//        self.monthRightButton.heightAnchor.constraint(equalToConstant: 35)
+//        self.monthRightButton.widthAnchor.constraint(equalToConstant: 30)
 
         // SelectMonthYear StackView
         self.selectMonthYearStackView.topAnchor.constraint(equalTo: self.headerView.topAnchor, constant: 20).isActive = true
@@ -408,6 +445,10 @@ import UIKit
         self.dayStackView.leadingAnchor.constraint(equalTo: self.bodyView.leadingAnchor, constant: 11).isActive = true
         self.dayStackView.trailingAnchor.constraint(equalTo: self.bodyView.trailingAnchor, constant: -11).isActive = true
         self.dayStackView.bottomAnchor.constraint(equalTo: self.bodyView.bottomAnchor, constant: -14).isActive = true
+        
+        // TodayButton TOM
+        self.todayButton.bottomAnchor.constraint(equalTo: self.bodyView.bottomAnchor, constant: -15).isActive = true
+        self.todayButton.centerXAnchor.constraint(equalTo: self.headerView.centerXAnchor, constant: 0).isActive = true
     }
 
     func setupCalendar() {
@@ -422,7 +463,7 @@ import UIKit
                     let weekDay = button.tag % 10
                     let day = self.dayArray.first
 
-                    setTodayIcon(button: button, day: day) // mark today icon (blue dot)
+                    setTodayIcon(button: button, day: day) // mark today icon (red dot)
 
                     if row == 1 {
                         if weekDay < self.firstWeekDay { // befroe 1st day in first week
@@ -431,7 +472,6 @@ import UIKit
                         } else {
                             button.setTitle(day, for: .normal)
                             button.isEnabled = true
-
                             self.dayArray.removeFirst()
                         }
                     } else {
@@ -446,11 +486,11 @@ import UIKit
                             button.isEnabled = false
 
                             if row == 6 {
-                                if weekDay == 1 { // if 6th week is empty
-                                    horizontalStackView.isHidden = true
+                                if weekDay == 7 { // if 6th week is empty
+                                    horizontalStackView.isHidden = false
                                     return
                                 } else {
-                                    horizontalStackView.isHidden = false
+                                    horizontalStackView.isHidden = true
                                 }
                             }
                         }
@@ -459,34 +499,67 @@ import UIKit
             }
         }
     }
+    private func getMonthName(inputMonth: Int) -> String {
+        switch inputMonth {
+        case 1: return "Jan"
+        case 2: return "Feb"
+        case 3: return "Mar"
+        case 4: return "Apr"
+        case 5: return "May"
+        case 6: return "Jun"
+        case 7: return "Jul"
+        case 8: return "Aug"
+        case 9: return "Sep"
+        case 10: return "Oct"
+        case 11: return "Nov"
+        case 12: return "Dec"
+        default: return ""
 
+        }
+    }
+    
     // set year and month label
     func setLabel() {
+        let monthName = getMonthName(inputMonth: self.inputMonth)
+        
+        self.monthLabel.text = monthName
+
+        
+        
         self.yearLabel.text = String(format: "%d", self.inputYear)
-        self.monthLabel.text = String(format: "%02d", self.inputMonth)
+//        self.monthLabel.text = String(format: "%02d", self.inputMonth)
     }
 
-    // set day to dayArray from 1 to lastDay(28, 30, 31) of month
+    // set day to dayArray from 1 to lastDay(28, 29 ,30, 31) of month
     func setDayArray() {
         for day in 1...self.lastDay {
             self.dayArray.append(String(day))
         }
     }
 
-    // mark today icon (blue dot)
+    // mark today icon (red dot)
     func setTodayIcon(button: DayButton, day: String?) {
         let todayString = Useful.intToString(self.todayDay)
 
         if isTodayMonth && day == todayString {
-            button.todayIconImageView.isHidden = false
+            print("todayString: ", todayString)
+            print("isTodayMonth: ", isTodayMonth)
+
+            button.beforeTextColor = UIColor.red
+            button.backgroundColor = UIColor.darkGray
+            button.todayIconImageView.isHidden = true
         } else {
             button.todayIconImageView.isHidden = true
+            button.beforeTextColor = UIColor.white
+            button.backgroundColor = UIColor.clear
         }
     }
 
     // MARK: - Click Event
     @objc func changeMonthOrYear(_ sender: UIButton) {
         switch sender.restorationIdentifier {
+        case "todaysMonth":
+            self.inquiryDate = Date()
         case "previousMonth":
             self.inquiryDate = Useful.addDate(self.inquiryDate, year: 0, month: -1, day: 0) ?? Date()
         case "nextMonth":
@@ -540,6 +613,16 @@ import UIKit
         }
     }
 
+    @objc public func todayAction() {
+//        self.dismissView()
+        self.setupViews()
+        self.setupWindow()
+        self.setupAutoLayout()
+        self.setupCalendar()
+
+        self.contentViewWindow.addSubview(self.view)
+        self.contentViewWindow.makeKeyAndVisible()
+    }
     @objc public func dismissView() {
         DispatchQueue.main.async {
             let completion = { (complete: Bool) -> Void in

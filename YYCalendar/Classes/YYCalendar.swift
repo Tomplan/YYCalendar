@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 @available(iOS 10.0, *)
 @objcMembers public class YYCalendar {
@@ -17,6 +18,7 @@ import Foundation
     // MARK: - Initialization
     public init(normalCalendarLangType langType: LangType, date: String, format: String, completion: @escaping SelectHandler) {
         componentType = .normal
+//        normalCalendar = NormalCalendar.init(langType: langType, date: date, first: first, format: format, completion: completion)
         normalCalendar = NormalCalendar.init(langType: langType, date: date, format: format, completion: completion)
     }
 
@@ -231,7 +233,35 @@ import Foundation
             }
         }
     }
+    
+    public var headerLabelBackgroundColor: UIColor = UIColor.black {
+        didSet {
+            weak var weakSelf = self
+            if let weakSelf = weakSelf {
+                switch componentType {
+                case .normal:
+                    weakSelf.normalCalendar?.headerLabelBackgroundColor = headerLabelBackgroundColor
+                case .limited:
+                    weakSelf.limitedCalendar?.headerLabelBackgroundColor = headerLabelBackgroundColor
+                }
+            }
+        }
+    }
 
+    public var headerLabelTextColor: UIColor = UIColor.black {
+        didSet {
+            weak var weakSelf = self
+            if let weakSelf = weakSelf {
+                switch componentType {
+                case .normal:
+                    weakSelf.normalCalendar?.headerLabelTextColor = headerLabelTextColor
+                case .limited:
+                    weakSelf.limitedCalendar?.headerLabelTextColor = headerLabelTextColor
+                }
+            }
+        }
+    }
+    
     public var weekLabelFont: UIFont = UIFont.systemFont(ofSize: 16) {
         didSet {
             weak var weakSelf = self
@@ -255,6 +285,20 @@ import Foundation
                     weakSelf.normalCalendar?.dayLabelFont = dayLabelFont
                 case .limited:
                     weakSelf.limitedCalendar?.dayLabelFont = dayLabelFont
+                }
+            }
+        }
+    }
+    
+    public var firstWeekDay: Int = 0 {
+        didSet {
+            weak var weakSelf = self
+            if let weakSelf = weakSelf {
+                switch componentType {
+                case .normal:
+                    weakSelf.normalCalendar?.firstWeekDay = firstWeekDay
+                case .limited:
+                    weakSelf.limitedCalendar?.firstWeekDay = firstWeekDay
                 }
             }
         }

@@ -11,7 +11,9 @@ import Foundation
 public typealias SelectHandler = (String) -> ()
 
 // MARK: - Languages
-let ENG_WEEK: [String] = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+//let ENG_WEEK: [String] = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+let ENG_WEEK: [String] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
 let ENG2_WEEK: [String] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 let ENG3_WEEK: [String] = ["S", "M", "T", "W", "T", "F", "S"]
 let KOR_WEEK: [String] = ["일", "월", "화", "수", "목", "금", "토"]

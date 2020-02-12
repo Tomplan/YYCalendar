@@ -6,12 +6,13 @@
 //
 
 import Foundation
+import UIKit
 
 @available(iOS 10.0, *)
 class DayButton: UIButton {
     let todayIconImage: UIImage? = UIImage(named: "today_icon", in: Bundle(for: DayButton.self), compatibleWith: nil)
-    var selectedDayColor: UIColor = Useful.getUIColor(55, 137, 220)
-    var beforeTextColor: UIColor = Useful.getUIColor(51, 51, 51)
+    var selectedDayColor: UIColor = UIColor.darkGray // Useful.getUIColor(55, 137, 220)
+    var beforeTextColor: UIColor = UIColor.red // Useful.getUIColor(51, 51, 51)
     var todayIconImageView: UIImageView!
     var dayButtonStyle: DayButtonStyle = .roundishSquare
 
@@ -45,7 +46,7 @@ class DayButton: UIButton {
 
     override var isHighlighted: Bool {
         willSet {
-            beforeTextColor = titleLabel?.textColor ?? Useful.getUIColor(51, 51, 51)
+            beforeTextColor = titleLabel?.textColor ?? UIColor.green // Useful.getUIColor(51, 51, 51)
         }
 
         didSet {
@@ -65,11 +66,15 @@ class DayButton: UIButton {
         self.titleLabel?.translatesAutoresizingMaskIntoConstraints = false
         self.todayIconImageView.translatesAutoresizingMaskIntoConstraints = false
 
+        
         self.titleLabel?.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
         self.titleLabel?.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         self.todayIconImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-        self.todayIconImageView.topAnchor.constraint(equalTo: (self.titleLabel?.bottomAnchor)!, constant: 2).isActive = true
-        self.todayIconImageView.heightAnchor.constraint(equalToConstant: 5).isActive = true
+//        self.todayIconImageView.topAnchor.constraint(equalTo: (self.titleLabel?.bottomAnchor)!, constant: 2).isActive = true
+//               self.todayIconImageView.heightAnchor.constraint(equalToConstant: 5).isActive = true
+//               self.todayIconImageView.widthAnchor.constraint(equalTo: self.todayIconImageView.heightAnchor).isActive = true
+        self.todayIconImageView.centerYAnchor.constraint(equalTo: (self.titleLabel?.centerYAnchor)!, constant: 0).isActive = true
+        self.todayIconImageView.heightAnchor.constraint(equalToConstant: 15).isActive = true
         self.todayIconImageView.widthAnchor.constraint(equalTo: self.todayIconImageView.heightAnchor).isActive = true
     }
 }
